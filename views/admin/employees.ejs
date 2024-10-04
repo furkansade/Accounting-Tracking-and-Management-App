@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<%- include("templates/_header") %>
+
+<body>
+
+  <!-- ======= Navbar ======= -->
+  <%- include("templates/_navbar") %>
+  <!-- End Navbar -->
+
+  <!-- ======= Sidebar ======= -->
+  <%- include("templates/_sidebar") %>
+  <!-- End Sidebar-->
+
+  <main id="main" class="main">
+
+    <div class="row">
+      <%- include("templates/_breadcrumb") %>
+
+      <% if(user.role === 'admin' || user.role === 'user') { %>
+        <div class="col-md-2 mb-3">
+            <button type="button" class="btn btn-primary">
+              <a href="/admin/employees/create" class="text-light">Çalışan Ekle</a>
+            </button>
+        </div>
+      <% } %>
+
+      <div class="row mb-3">
+        <div class="col-md-6">
+            <a data-bs-toggle="modal" data-bs-target="#deletedEmployees" class="btn btn-danger mr-2">Silinenler</a>
+            <a class="btn btn-warning" href="/admin/employees/exited-employees">İşten Ayrılanlar</a>
+        </div>
+      </div>
+    
+    </div>
+
+
+    <section class="section">
+      <div class="row">
+
+        <table id="employeesTable" class="table table-hover">
+          <thead>
+            <tr>
+              <th scope="col">İsim Soyisim</th>
+              <th scope="col">İşe Başlama Tarihi</th>
+              <th scope="col">İşlemler</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <% for(let i = 0; i < employees.length; i++) { %>
+              <% if(employees[i].employeeDeleted === null && employees[i].employeeExitDate === null) { %>
+
+            <tr>
+              <td>
+                <a href="/admin/employees/detail/<%= employees[i]._id %>">
+                  <%= employees[i].employeeFullName %>
+                </a>
+              </td>
+              <td><%= employees[i].formattedEmployeeStartDate %></td>
+              <td>
+                <div class="row">
+                  <div class="col-4 d-flex flex-row column-gap-1">
+                    <a href="/admin/employees/detail/<%= employees[i]._id %>" class="btn btn-sm btn-primary">
+                      <i class="bi bi-eye"></i>
+                    </a>
+                    <% if(user.role === 'admin') { %>
+                      <form id="sade-delete-employee-table-<%= employees[i]._id %>" action="/admin/employees/delete/<%= employees[i]._id %>?_method=PUT" method="post">
+                        <input type="hidden" name="<%= employees[i]._id %>" value="<%= employees[i]._id %>">
+                        <button type="button" class="btn btn-sm btn-danger" onclick="confirmEmployeeDelete('<%= employees[i]._id %>')">
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </form>
+                    <% } %>
+
+                  </div>
+                </div>
+                
+              </td>
+            </tr>
+            <% } %>
+            <% } %>
+
+
+          </tbody>
+        </table>
+
+      </div>
+    </section>
+
+  </main><!-- End #main -->
+  <!-- End #main -->
+
+  <% if(user.role === 'admin') { %>
+    <!-- ======= Deleted Employees Modal ======= -->
+      <div class="modal fade" id="deletedEmployees" tabindex="-1" aria-labelledby="deletedEmployeesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+      
+            <div class="modal-header">
+              <h5 class="modal-title"><strong>Silinen Çalışanlar</strong></h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+      
+            <div class="modal-body">
+              <table class="table table-hover">
+                <thead>
+                  <th scope="col">Çalışan</th>
+                  <th scope="col">Silinme Tarihi</th>
+                </thead>
+                <tbody>
+                <% for (employee of deletedEmployees) { %>
+                  <tr>
+                    <td>
+                      <a href="/admin/employees/detail/<%= employee.id %>">
+                        <%= employee.employeeFullName %>
+                      </a>
+                    </td>
+                    <td><%= new Date(employee.employeeDeleted).toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' }) %></td>
+                  </tr>
+                <% } %>
+              </tbody>
+                </table>
+            
+            </div>
+      
+            </div>
+          </div>
+      </div>
+    <!-- End Deleted Employees Modal -->
+  <% } %>
+
+  <!-- ======= Footer ======= -->
+  <%- include("templates/_footer") %>
+  <!-- End Footer -->
+
+  <%- include("templates/_scroll") %>
+
+  <%- include("templates/_script") %>
+
+  <% if(user.role === 'admin') { %>
+    <script>
+      function confirmEmployeeDelete(employeeId) {
+        if (confirm('Bu çalışanı silmek istediğinizden emin misiniz?')) {
+          document.getElementById('sade-delete-employee-table-' + employeeId).submit();
+        }
+      }
+    </script>
+  <% } %>
+  
+
+</body>
+
+</html>

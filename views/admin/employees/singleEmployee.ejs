@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<%- include("../templates/_header") %>
+
+<body>
+
+  <!-- ======= Navbar ======= -->
+  <%- include("../templates/_navbar") %>
+  <!-- End Navbar -->
+
+  <!-- ======= Sidebar ======= -->
+  <%- include("../templates/_sidebar") %>
+  <!-- End Sidebar-->
+
+  <main id="main" class="main">
+
+    <div class="row">
+      <%- include("../templates/_breadcrumb") %>
+      <div class="col-md-2">
+      <% if(employee.employeeDeleted === null && employee.employeeExitDate === null) { %>
+        <% if(user.role === 'admin') { %>
+          <form id="sade-delete-employee-single-<%= employee._id %>" action="/admin/employees/delete/<%= employee._id %>?_method=PUT" method="post">
+            <input type="hidden" name="<%= employee._id %>" value="<%= employee._id %>">
+            <button type="button" class="btn btn-danger" onclick="confirmDelete('<%= employee._id %>')">
+              Çalışanı Sil!
+            </button>
+          </form>
+        <% } %>
+          <% } else { %>
+            <button disabled="disabled" class="btn btn-danger">Çalışan Silinmiş!</button>
+          <% } %> 
+          </div>
+    </div>
+
+    <div class="row">
+      <form class="row g-3" id="updateEmployeeForm" action="/admin/employees/<%= employee._id %>?_method=PUT" method="POST">
+          <div class="row">
+           
+            <div class="form-group">
+              <div class="row">
+              
+              <div class="col-md-4 mb-3">
+                <label for="employeeFullName" class="form-label"><strong>İsim Soyisim</strong> <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="employeeFullName" name="employeeFullName" value="<%= employee.employeeFullName %>" required>
+              </div>
+
+                <div class="col-md-4 mb-3">
+                  <label for="employeeStartDate" class="form-label"><strong>İşe Giriş Tarihi</strong> <span class="text-danger">*</span></label>
+                  <input type="date" class="form-control" id="employeeStartDate" name="employeeStartDate" value="<%= formattedStartDate %>"  required>
+                </div>
+  
+                <div class="col-md-4 mb-3">
+                  <label for="employeeExitDate" class="form-label"><strong>İşten Çıkış Tarihi</strong></label>
+                  <input type="date" class="form-control <%= employee.employeeExitDate ? 'bg-warning' : ''  %>" id="employeeExitDate" name="employeeExitDate" value="<%= employee.employeeExitDate != null ? formattedExitDate : '' %>">
+                </div>
+              </div>
+  
+            </div>
+
+            <div class="col-md-6 mt-3">
+              <div class="form-group">
+                <h5><strong>Çalışma Programı</strong></h5>
+                <table class="table">
+                  <tr>
+                    <th>Gün</th>
+                    <th>Başlangıç Saati</th>
+                    <th>Bitiş Saati</th>
+                  </tr>
+                  <% ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"].forEach(function(day) { 
+                    const workSchedule = employee.employeeWorkSchedule.find(schedule => schedule.day === day) || {};
+                    const startTime = workSchedule.startTime || '';
+                    const endTime = workSchedule.endTime || '';
+                    const isRed = startTime === '00:00' && endTime === '00:00';
+                    const isSuccess = startTime === '09:00' && endTime === '18:00';
+                    const isWarning = startTime === '09:00' && endTime !== '18:00';
+                    const inputClass = isRed ? 'bg-danger-subtle text-dark' : isSuccess ? 'bg-success-subtle text-dark' : isWarning ? 'bg-warning-subtle text-dark' : '';
+                  %>
+                    <tr>
+                      <td><input class="form-control <%= inputClass %>" type="text" name="employeeWorkSchedule[<%= day %>][day]" value="<%= day %>" readonly></td>
+                      <td>
+                        <input 
+                          class="form-control <%= inputClass %>" 
+                          type="time" 
+                          name="employeeWorkSchedule[<%= day %>][startTime]" 
+                          value="<%= startTime %>"
+                        >
+                      </td>
+                      <td>
+                        <input 
+                          class="form-control <%= inputClass %>" 
+                          type="time" 
+                          name="employeeWorkSchedule[<%= day %>][endTime]" 
+                          value="<%= endTime %>"
+                        >
+                      </td>
+                    </tr>
+                  <% }); %>
+                </table>
+                
+                
+              </div>
+            </div>
+
+            <div class="col-md-6 mt-3">
+              <div class="form-group mt-3">
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="employeeLeaveDays" class="form-label"><strong>Yıllık İzin Hakkı (Gün Sayısı)</strong> <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="employeeLeaveDays" name="employeeLeaveDays" value="<%= employee.employeeLeaveDays %>" required>
+                  </div>
+
+                  <div class="col-md-6 mb-3">
+                    <label for="employeeRemainingLeaveDays" class="form-label"><strong>Kalan İzin Hakkı (Gün Sayısı)</strong> <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="employeeRemainingLeaveDays" name="employeeRemainingLeaveDays" value="<%= remainingLeaveDays %>" readonly required>
+                  </div>
+  
+                  <div class="col-md-12 mb-3">
+                    <label for="employeeWorkType" class="form-label"><strong>Çalışma Şekli</strong> <span class="text-danger">*</span></label>
+                    <select class="form-select" name="employeeWorkType" id="employeeWorkType">
+                      <% for (let x = 0; x < workTypes.length; x++) { %>
+                        <option value="<%= workTypes[x] %>" <%= workTypes[x] === employee.employeeWorkType ? 'selected' : '' %>><%= workTypes[x] %></option>
+                      <% } %>
+                    </select>
+                  </div>
+                </div>
+              </div>
+  
+              <div class="form-group">
+                <div class="row">
+  
+                  <div class="col-md-6 mb-3">
+                    <label for="employeeSalary" class="form-label"><strong>Maaş</strong></label>
+                    <div class="input-group">
+                      <span class="input-group-text"><strong>₺</strong></span>
+                      <input type="number" class="form-control" id="employeeSalary" name="employeeSalary" step="0.01" value="<%= employee.employeeSalary %>">
+                    </div>
+                  </div>
+  
+                  <div class="col-md-6 mb-3">
+                    <label for="employeeSGK" class="form-label"><strong>SGK</strong></label>
+                    <div class="input-group">
+                      <span class="input-group-text"><strong>₺</strong></span>
+                      <input type="number" class="form-control" id="employeeSGK" name="employeeSGK" step="0.01" value="<%= employee.employeeSGK %>">
+                    </div>
+                  </div>
+  
+                </div>
+              </div>
+            </div>
+
+            <% if(user.role === 'admin' || user.role === 'user') { %>
+              <div class="row mb-4">
+                  <button type="submit" class="btn btn-warning">Kaydet</button>
+              </div>
+            <% } %>
+          </div>
+      </form>
+    </div>
+
+    <%- include("../templates/_alert") %>
+
+    <div class="row mt-5">
+      <div class="col-md-6">
+        <h3 class="text-decoration-underline">
+            İzin Tarihleri  <i class="bi bi-info-circle" width="12"></i>
+        </h3>
+        <% if(user.role === 'admin' || user.role === 'user') { %>
+          <form action="/admin/employees/add-leave/<%= employee._id %>?_method=PUT" method="post">
+            <div class="row mt-3">
+              <div class="col-md-4">
+                <label for="leaveDate" class="form-label"><strong>İzin Tarihi</strong> <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" name="leaveDate" value="<%= formmattedCurrentDate %>" required>
+              </div>
+              <div class="col-md-2">
+                <label for="numberOfLeaveDay" class="form-label"><strong>Gün Sayısı</strong> <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="numberOfLeaveDay" name="numberOfLeaveDay" min="1" placeholder="1" required>
+              </div>
+              <div class="col-md-4">
+                <label for="leaveDate" class="form-label"><strong>İzin Sebebi</strong></label>
+                <input type="text" class="form-control" name="leaveReason">
+              </div>
+              <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary">İzin Ekle</button>
+              </div>
+            </div>
+          </form>
+        <% } %>
+      </div>
+    </div>
+
+    <div class="row col-md-6 mt-3 px-2">
+      <table class="table table-hover">
+        <thead>
+          <th scope="col" class="col-5">İzin Tarihi</th>
+          <th scope="col" class="col-5">İzin Nedeni</th>
+          <th scope="col" class="col-2">İşlemler</th>
+        </thead>
+        <tbody>
+        <% for (let x = 0; x < leaveDates.length; x++) { %>
+          <tr>
+            <td class="col-5"><%= leaveDates[x].formattedLeaveDate %></td>
+            <td class="col-5"><%= leaveDates[x].leaveReason %></td>
+            <td class="col-2">
+              <a href="/admin/employees/delete-leave/<%= employee._id %>/<%= leaveDates[x]._id %>?_method=DELETE" class="btn btn-sm btn-danger">
+                <i class="bi bi-trash"></i>
+              </a>
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+      </table>
+    </div>
+
+
+  </main><!-- End #main -->
+  <!-- End #main -->
+
+  <!-- ======= Footer ======= -->
+  <%- include("../templates/_footer") %>
+  <!-- End Footer -->
+
+  <%- include("../templates/_scroll") %>
+
+  <%- include("../templates/_script") %>
+
+  <script>
+    function confirmDelete(employeeId) {
+      if (confirm('Bu çalışanı silmek istediğinizden emin misiniz?')) {
+        document.getElementById('sade-delete-employee-single-' + employeeId).submit();
+      }
+    }
+  </script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var userRole = '<%= user.role %>'; // EJS ile sunucu tarafında rolü al
+  
+      if (userRole !== 'admin') {
+        var inputs = document.querySelectorAll('#updateEmployeeForm input');
+        var selects = document.querySelectorAll('#updateEmployeeForm select');
+  
+        inputs.forEach(function(input) {
+          input.setAttribute('readonly', 'readonly');
+          input.classList.add('readonly-input'); // Opsiyonel, CSS sınıfı eklemek için
+        });
+  
+        selects.forEach(function(select) {
+          select.classList.add('readonly-select');
+          select.setAttribute('disabled', 'disabled');
+        });
+      }
+    });
+  </script>
+  
+  
+
+</body>
+
+</html>

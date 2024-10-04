@@ -1,0 +1,20 @@
+<% if (flashMessages) { %>
+    <div class="col-md-4">
+    <% if (flashMessages.success) { %>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <%= flashMessages.success %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  <% } else if (flashMessages.error) { %>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <%= flashMessages.error %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <% } else if (flashMessages.update) { %>
+      <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <%= flashMessages.update %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    <% } %>
+    </div>
+  <% } %>

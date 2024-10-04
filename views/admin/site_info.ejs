@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<%- include("templates/_header") %>
+
+<body>
+
+  <!-- ======= Navbar ======= -->
+  <%- include("templates/_navbar") %>
+  <!-- End Navbar -->
+
+  <!-- ======= Sidebar ======= -->
+  <%- include("templates/_sidebar") %>
+  <!-- End Sidebar-->
+
+  <main id="main" class="main">
+
+    <div class="row">
+      <div class="col-md-10">
+        <div class="pagetitle">
+          <h1>Site Info</h1>
+          <nav>
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="/admin">Dashboard</a></li>
+              <li class="breadcrumb-item">Site Bilgileri</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+      <div class="col-md-2">
+    </div>
+
+
+    <section class="section">
+      <div class="row">
+
+        <% if (siteInfo) { %>
+
+        <form class="row g-3" action="/admin/site-info/<%= siteInfo._id %>?_method=PUT" method="POST">
+          <div class="row mt-3 mb-3">
+
+          <h4 class="mt-3 fw-bold">Genel Site Bilgileri</h4>
+
+
+            <div class="container form-group">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="title" class="form-label">Site İsmi</label>
+                  <input type="text" class="form-control" id="title" name="title" value="<%= siteInfo.title %>" placeholder="<%= siteInfo.title %>">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="description" class="form-label">Site Sloganı</label>
+                  <input type="text" class="form-control" id="description" name="description" value="<%= siteInfo.description %>" placeholder="<%= siteInfo.description %>">
+                </div>
+              </div>
+            </div>
+
+            <div class="container form-group">
+              <div class="row">
+                <div class="col-md-4 mb-3">
+                  <label for="email" class="form-label">Eposta</label>
+                  <input type="text" class="form-control" id="email" name="email" value="<%= siteInfo.email %>" placeholder="<%= siteInfo.email %>">
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label for="phone" class="form-label">Telefon</label>
+                  <input type="text" class="form-control" id="phone" name="phone" value="<%= siteInfo.phone %>" placeholder="<%= siteInfo.phone %>">
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label for="address" class="form-label">Adres</label>
+                  <input type="text" class="form-control" id="address" name="address" value="<%= siteInfo.address %>" placeholder="<%= siteInfo.address %>">
+                </div>
+              </div>
+            </div>
+            
+
+          <h4 class="mt-3 fw-bold">Sosyal Medya</h4>
+
+          <div class="container form-group">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="linkedin" class="form-label">Linkedin</label>
+                <input type="text" class="form-control" id="linkedin" name="linkedin" value="<%= siteInfo.socialMedia.linkedin %>" placeholder="<%= siteInfo.socialMedia.linkedin %>">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="instagram" class="form-label">Instagram</label>
+                <input type="text" class="form-control" id="instagram" name="instagram" value="<%= siteInfo.socialMedia.instagram %>" placeholder="<%= siteInfo.socialMedia.instagram %>">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="twitter" class="form-label">Twitter</label>
+                <input type="text" class="form-control" id="twitter" name="twitter" value="<%= siteInfo.socialMedia.twitter %>" placeholder="<%= siteInfo.socialMedia.twitter %>">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="youtube" class="form-label">Youtube</label>
+                <input type="text" class="form-control" id="youtube" name="youtube" value="<%= siteInfo.socialMedia.youtube %>" placeholder="<%= siteInfo.socialMedia.youtube %>">
+              </div>
+            </div>
+          </div>
+
+          <!-- update button -->
+          <div class="container form-group">
+            <button type="submit" class="btn btn-primary">Güncelle</button>
+          </div>
+    
+        
+          </div>
+        </form>
+
+        <% } else { %>
+        <div class="container">
+          <h3>Site Bilgileri Yok!</h3>
+        </div>
+        <% } %>
+      
+
+      </div>
+    </section>
+
+  </main><!-- End #main -->
+  <!-- End #main -->
+
+
+
+  <!-- ======= Footer ======= -->
+  <%- include("templates/_footer") %>
+  <!-- End Footer -->
+
+  <%- include("templates/_scroll") %>
+
+  <%- include("templates/_script") %>
+  
+
+</body>
+
+</html>

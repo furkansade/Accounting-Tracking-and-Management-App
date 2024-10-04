@@ -1,0 +1,18 @@
+<div class="col-md-10">
+    <div class="pagetitle">
+    <h1 style="text-transform: capitalize;"><%= breadcrumbs %></h1>
+    <nav>
+        <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/admin">Dashboard</a></li>
+        <% if (title === 'customer') { %>
+            <li class="breadcrumb-item"><a href="/admin/customers">Cariler</a></li>
+        <% } %>
+
+        <% if (title === 'employee') { %>
+            <li class="breadcrumb-item"><a href="/admin/employees">Çalışanlar</a></li>
+        <% } %>
+        <li class="breadcrumb-item" style="text-transform: capitalize;"><%= breadcrumbs %></li>
+        </ol>
+    </nav>
+    </div>
+</div>

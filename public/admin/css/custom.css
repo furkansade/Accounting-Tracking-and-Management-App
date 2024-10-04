@@ -1,0 +1,46 @@
+table tbody tr td {
+    align-content: center;
+}
+
+/* loans page div table */
+.sade-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #ddd;
+}
+
+.sade-table-checked{
+    background-color: rgba(74, 255, 74, 0.164)!important;
+}
+
+.sade-table-header,
+.sade-table-row {
+    display: flex;
+}
+
+.sade-table-header {
+    background-color: #f2f2f2;
+}
+
+.sade-table-header-item,
+.sade-table-item {
+    flex: 1;
+    padding: 8px;
+    text-align: center;
+}
+
+.sade-table-item {
+    border-top: 1px solid #ddd;
+}
+
+.sade-table-item:last-child {
+    border-right: none;
+}
+
+.sade-table-row:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.sade-table-row:hover {
+    background-color: #e2e2e2;
+}

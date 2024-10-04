@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<%- include("../templates/_header") %>
+
+<body>
+
+  <!-- ======= Navbar ======= -->
+  <%- include("../templates/_navbar") %>
+  <!-- End Navbar -->
+
+  <!-- ======= Sidebar ======= -->
+  <%- include("../templates/_sidebar") %>
+  <!-- End Sidebar-->
+
+  <main id="main" class="main">
+
+    <div class="row">
+      <%- include("../templates/_breadcrumb") %>
+    </div>
+
+    <div class="row">
+        <form id="employeeForm" action="/admin/employees" method="post">
+                <div class="row">
+                  <div class="col-md-12 mb-3">
+                    <label for="employeeFullName" class="form-label"><strong>İsim Soyisim</strong> <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="employeeFullName" name="employeeFullName" required>
+                  </div>
+        
+                  <div class="form-group">
+        
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <label for="employeeStartDate" class="form-label"><strong>İşe Giriş Tarihi</strong> <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" id="employeeStartDate" name="employeeStartDate" required>
+                      </div>
+        
+                      <div class="col-md-6 mb-3">
+                        <label for="employeeExitDate" class="form-label"><strong>İşten Çıkış Tarihi</strong></label>
+                        <input type="date" class="form-control" id="employeeExitDate" name="employeeExitDate">
+                      </div>
+                    </div>
+        
+                  </div>
+
+                  <div class="col-md-6 mt-3">
+                    <div class="form-group mt-3">
+                      <div class="row">
+                        <div class="col-md-12 mb-3">
+                          <label for="employeeLeaveDays" class="form-label"><strong>Yıllık İzin Hakkı (Gün Sayısı)</strong> <span class="text-danger">*</span></label>
+                          <input type="number" class="form-control" id="employeeLeaveDays" name="employeeLeaveDays" value="14" readonly required>
+                        </div>
+  
+                        <div class="col-md-12 mb-3">
+                          <label for="employeeWorkType" class="form-label"><strong>Çalışma Şekli</strong> <span class="text-danger">*</span></label>
+                          <select class="form-select" name="employeeWorkType" id="employeeWorkType">
+                              <option value="Full Time">Tam Zamanlı</option>
+                              <option value="Part Time">Yarı Zamanlı</option>
+                              <option value="Remote">Uzaktan</option>
+                              <option value="Stajyer">Stajyer</option>
+                              <option value="Dönemsel">Dönemsel</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+  
+                    <div class="form-group">
+                      <div class="row">
+  
+                        <div class="col-md-12 mb-3">
+                          <label for="employeeSalary" class="form-label"><strong>Maaş</strong></label>
+                          <div class="input-group">
+                            <span class="input-group-text"><strong>₺</strong></span>
+                            <input type="number" class="form-control" id="employeeSalary" name="employeeSalary" step="0.01">
+                          </div>
+                        </div>
+  
+                        <div class="col-md-12 mb-3">
+                          <label for="employeeSGK" class="form-label"><strong>SGK</strong></label>
+                          <div class="input-group">
+                            <span class="input-group-text"><strong>₺</strong></span>
+                            <input type="number" class="form-control" id="employeeSGK" name="employeeSGK" step="0.01">
+                          </div>
+                        </div>
+  
+                      </div>
+                    </div>
+                  </div>
+
+                  
+                  <div class="col-md-6 mt-3">
+                    <h5><strong>Çalışma Programı</strong></h5>
+                    <div class="form-group">
+                      <table class="table">
+                        <tr>
+                          <th>Gün</th>
+                          <th>Başlangıç Saati</th>
+                          <th>Bitiş Saati</th>
+                        </tr>
+                        <% ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"].forEach(function(day) { %>
+                          <tr>
+                            <td><input class="form-control" type="text" name="employeeWorkSchedule[<%= day %>][day]" value="<%= day %>" readonly></td>
+                            <td><input class="form-control" type="time" name="employeeWorkSchedule[<%= day %>][startTime]" value="<%= day === 'Cumartesi' || day === 'Pazar' ? '00:00' : '09:00' %>"></td>
+                            <td><input class="form-control" type="time" name="employeeWorkSchedule[<%= day %>][endTime]" value="<%= day === 'Cumartesi' || day === 'Pazar' ? '00:00' : '18:00' %>"></td>
+                          </tr>
+                        <% }); %>
+                      </table>
+                      
+                    </div>
+                    
+                  </div>
+
+                  <!-- kaydet -->
+                    <div class="col-md-6 mb-4">
+                        <button type="submit" class="btn btn-warning">Kaydet</button>
+                    </div>
+           
+          </form>
+    </div>
+
+
+
+    <%- include("../templates/_alert") %>
+
+  </main><!-- End #main -->
+  <!-- End #main -->
+
+  <!-- ======= Footer ======= -->
+  <%- include("../templates/_footer") %>
+  <!-- End Footer -->
+
+  <%- include("../templates/_scroll") %>
+
+  <%- include("../templates/_script") %>
+
+</body>
+
+</html>

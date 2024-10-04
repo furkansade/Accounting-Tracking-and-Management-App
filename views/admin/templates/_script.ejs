@@ -1,0 +1,33 @@
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<!-- Vendor JS Files -->
+<script src="/admin/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="/admin/vendor/chart.js/chart.umd.js"></script>
+<script src="/admin/vendor/simple-datatables/simple-datatables.js"></script>
+<script src="/admin/vendor/dataTables/datatables.min.js"></script>
+
+<!-- Template Main JS File -->
+<script src="/admin/js/main.js"></script>
+
+<script>
+   setTimeout(function() {
+      var alertElement = document.querySelector('.alert');
+      if (alertElement) {
+        alertElement.style.display = 'none';
+      }
+    }, 4000);
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const forms = document.querySelectorAll('form');
+    forms.forEach(function (form) {
+      form.addEventListener('submit', function (event) {
+        const submitButtons = form.querySelectorAll('button[type="submit"]');
+        submitButtons.forEach(function (button) {
+          button.disabled = true;
+        });
+      });
+    });
+  });
+</script>

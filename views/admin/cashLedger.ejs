@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<%- include("templates/_header") %>
+
+<body>
+
+  <!-- ======= Navbar ======= -->
+  <%- include("templates/_navbar") %>
+  <!-- End Navbar -->
+
+  <!-- ======= Sidebar ======= -->
+  <%- include("templates/_sidebar") %>
+  <!-- End Sidebar-->
+
+  <main id="main" class="main">
+
+    <div class="row">
+      <%- include("templates/_breadcrumb") %>
+
+      <% if (user.role === 'admin' || user.role === 'user'){ %>
+        <div class="col-md-2">
+          <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addCashLedgerModal">
+            İşlem Ekle
+          </button>
+        </div>
+      <% } %>
+    </div>
+
+    <section class="section">
+
+      <div class="row">
+        <div class="col-xxl-4 col-md-6">
+          <div class="card">
+            <div class="card-body p-3">
+              <h4 class="card-title d-flex justify-content-between">
+                Son Durum
+                <a class="btn btn-sm btn-success" data-bs-target="#sade_openThePieChart" data-bs-toggle="modal"><i class="bi bi-pie-chart"></i></a>
+              </h4>
+              <table class="table table-bordered" style="margin: 0;">
+                <thead>
+                  <tr>
+                    <th scope="col">Gelir</th>
+                    <th scope="col">Gider</th>
+                    <th scope="col">Bakiye</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="text-success fw-bold"><%= totalCashLedgerGelir.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> ₺</td>
+                    <td class="text-danger fw-bold"><%= totalCashLedgerGider.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> ₺</td>
+                    <td class="<%= totalCashLedgerAmount < 0 ? 'text-danger' : 'text-success' %> fw-bold"><%= totalCashLedgerAmount.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> ₺</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="col-md-8 mt-3 mb-3">
+          <form method="GET" action="/admin/cash-ledger" id="sade_cashLedgerFilterForm">
+            <div class="row">
+              <div class="col-md-4">
+                <label for="cashLedgerStartDate" class="form-label">Başlangıç Tarihi <span class="fw-bold text-danger" >*</span></label>
+                <input type="date" id="cashLedgerStartDate" name="cashLedgerStartDate" class="form-control" value="<%= cashLedgerStartDate %>" required>
+              </div>
+              <div class="col-md-4">
+                <label for="cashLedgerEndDate" class="form-label">Bitiş Tarihi <span class="fw-bold text-danger" >*</span></label>
+                <input type="date" id="cashLedgerEndDate" name="cashLedgerEndDate" class="form-control" value="<%= cashLedgerEndDate %>" required>
+              </div>
+              <div class="col-md-4 align-self-end">
+                <button type="submit" class="btn btn-primary">Filtrele</button>
+                <button type="button" class="btn btn-secondary" id="resetFilters">Sıfırla</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-8">
+          <div class="row">
+            <div class="col-md-8">
+              <button class="btn btn-sm btn-secondary" id="todayBtn">Bugün</button>
+              <button class="btn btn-sm btn-secondary" id="yesterdayBtn">Dün</button>
+              <button class="btn btn-sm btn-secondary" id="lastWeekBtn">Son Bir Hafta</button>
+              <button class="btn btn-sm btn-secondary" id="lastMonthBtn">Son Bir Ay</button>
+            </div>
+            <div class="col-md-4">
+              <form method="GET" action="/admin/cash-ledger/export-excel" id="sade_exportFilterExcelForm">
+                <input type="hidden" name="cashLedgerStartDate" id="exportStartDate">
+                <input type="hidden" name="cashLedgerEndDate" id="exportEndDate">
+                <button type="submit" class="btn btn-sm btn-success">Excel'e Aktar</button>
+              </form>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+
+      <div class="row">
+
+       <%- include("templates/_alert") %>
+
+        <table id="sade_cashledger-table" class="table table-hover">
+          <thead>
+            <tr>
+              <th scope="col" class="col-1">Tarih</th>
+              <th scope="col" class="col-2">Unvan</th>
+              <th scope="col" class="col-1">Kategori</th>
+              <th scope="col" class="col-4">Açıklama</th>
+              <th scope="col" class="col-1">Tip</th>
+              <th scope="col" class="col-2">Bakiye</th>
+              <% if (user.role === 'admin') { %>
+                <th scope="col" class="col-1 text-center">İşlemler</th>
+              <% } %>
+            </tr>
+          </thead>
+          <tbody>
+
+            <% for(let i = 0; i < cashLedgers.length; i++) { %>
+              <tr>
+                <td class="fw-bold"><%= cashLedgers[i].formattedCashLedgerDate %></td>
+                <td><%= cashLedgers[i].cashLedgerTitle %></td>
+                <td><%= cashLedgers[i].cashLedgerCategory %></td>
+                <td><%= cashLedgers[i].cashLedgerDescription ? cashLedgers[i].cashLedgerDescription : '-' %></td>
+                <td><%= cashLedgers[i].cashLedgerType %></td>
+                <td class="<%= cashLedgers[i].cashLedgerType === 'Gelir' ? 'text-success' : 'text-danger' %> text-end fw-bold"><%= cashLedgers[i].formattedCashLedgerAmount %> ₺</td>
+                <% if (user.role === 'admin') { %>
+                  <td class="text-center">
+                    <a class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editCashLedgerModal_<%= cashLedgers[i]._id %>">
+                      <i class="bi bi-pen"></i>
+                    </a>
+                    <a href="/admin/cash-ledger/<%= cashLedgers[i]._id %>?_method=DELETE" class="btn btn-sm btn-danger">
+                      <i class="bi bi-trash"></i>
+                    </a>
+                  </td>
+                <% } %>
+              </tr>
+
+                <!-- ======= Edit CashLedger Modal ======= -->
+                <div class="modal fade" id="editCashLedgerModal_<%= cashLedgers[i]._id %>" tabindex="-1" aria-labelledby="editCashLedgerModalModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+            
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="editCashLedgerModalModalLabel">İşlem Düzenle</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+            
+                      <div class="modal-body">
+                        <form class="row g-3" action="/admin/cash-ledger/<%= cashLedgers[i]._id %>?_method=PUT" method="POST">
+            
+                          <div class="row mt-3 mb-3">
+            
+                            <div class="col-md-12 mb-3">
+                              <label for="cashLedgerDate" class="form-label"><strong>İşlem Tarihi</strong> <span class="text-danger">*</span></label>
+                              <input type="date" class="form-control" id="cashLedgerDate" name="cashLedgerDate" value="<%= formatDateForInputDate(cashLedgers[i].cashLedgerDate) %>" required>
+                            </div>
+            
+                            <div class="col-md-12 mb-3">
+                              <label for="cashLedgerTitle" class="form-label"><strong>Unvan</strong> <span class="text-danger">*</span></label>
+                              <input type="text" class="form-control" id="cashLedgerTitle" name="cashLedgerTitle" value="<%= cashLedgers[i].cashLedgerTitle %>" required>
+                            </div>
+            
+                            <div class="form-group">
+            
+                              <div class="row">
+            
+                                <div class="col-md-6 mb-3">
+                                  <label for="cashLedgerType" class="form-label"><strong>İşlem Tipi</strong> <span class="text-danger">*</span></label>
+                                  <select class="form-select" name="cashLedgerType" id="cashLedgerType" required>
+                                    <option value="Gelir" <%= cashLedgers[i].cashLedgerType === 'Gelir' ? 'selected' : '' %>>GELİR</option>
+                                    <option value="Gider" <%= cashLedgers[i].cashLedgerType === 'Gider' ? 'selected' : '' %>>GİDER</option>
+                                  </select>
+                                </div>
+                
+                                <div class="col-md-6 mb-3">
+                                  <label for="cashLedgerCategory" class="form-label"><strong>İşlem Kategorisi</strong> <span class="text-danger">*</span></label>
+                                  <select class="form-select" name="cashLedgerCategory" id="cashLedgerCategory" required>
+                                    <% cashLedgerCategories.forEach(function(category) { %>
+                                      <option value="<%= category %>" <%= category === cashLedgers[i].cashLedgerCategory ? 'selected' : '' %>><%= category %></option>
+                                    <% }) %>
+                                  </select>
+                                </div>
+            
+                              </div>
+            
+                            </div>
+            
+                            <div class="col-md-12 mb-3">
+                              <label for="cashLedgerDescription" class="form-label"><strong>İşlem Açıklaması</strong></label>
+                              <textarea class="form-control" name="cashLedgerDescription" id="cashLedgerDescription" rows="2"><%= cashLedgers[i].cashLedgerDescription %></textarea>
+                            </div>
+            
+                            <div class="col-md-12 mb-3">
+                              <label for="cashLedgerAmount" class="form-label"><strong>İşlem Tutarı</strong> <span class="text-danger">*</span></label>
+                              <input type="number" class="form-control" id="cashLedgerAmount" name="cashLedgerAmount" value="<%= cashLedgers[i].cashLedgerAmount %>" step="0.01" required>
+                            </div>
+            
+            
+                          </div>
+            
+                      </div>
+                  
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                        <button type="submit" class="btn btn-primary">Ekle</button>
+                      </div>
+            
+                        </form>
+                      </div>
+                    </div>
+                </div>
+                <!-- End Edit CashLedger Modal -->
+  
+                <% } %>
+
+
+          </tbody>
+        </table>
+
+      </div>
+    </section>
+
+  </main><!-- End #main -->
+  <!-- End #main -->
+
+
+  <% if (user.role === 'admin' || user.role === 'user'){ %>
+    <!-- ======= Add CashLedger Modal ======= -->
+    <div class="modal fade sade_addModal" id="addCashLedgerModal" tabindex="-1" aria-labelledby="addCashLedgerModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+          <div class="modal-header">
+            <h5 class="modal-title" id="addCashLedgerModalLabel">Kasaya İşlem Ekle</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body">
+            <form class="row g-3 sade_addForm" action="/admin/cash-ledger" method="POST">
+
+              <div class="row mt-3 mb-3">
+
+                <div class="col-md-12 mb-3">
+                  <label for="cashLedgerDate" class="form-label"><strong>İşlem Tarihi</strong> <span class="text-danger">*</span></label>
+                  <input type="date" class="form-control" id="cashLedgerDate" name="cashLedgerDate" value="<%= formmattedCurrentDate %>" required>
+                </div>
+
+                <div class="col-md-12 mb-3">
+                  <label for="cashLedgerTitle" class="form-label"><strong>Unvan</strong> <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="cashLedgerTitle" name="cashLedgerTitle" required>
+                </div>
+
+                <div class="form-group">
+
+                  <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                      <label for="cashLedgerType" class="form-label"><strong>İşlem Tipi</strong> <span class="text-danger">*</span></label>
+                      <select class="form-select" name="cashLedgerType" id="cashLedgerType" required>
+                        <option value="Gelir">GELİR</option>
+                        <option value="Gider">GİDER</option>
+                      </select>
+                    </div>
+    
+                    <div class="col-md-6 mb-3">
+                      <label for="cashLedgerCategory" class="form-label"><strong>İşlem Kategorisi</strong> <span class="text-danger">*</span></label>
+                      <select class="form-select" name="cashLedgerCategory" id="cashLedgerCategory" required>
+                      <% cashLedgerCategories.forEach(function(category) { %>
+                        <option value="<%= category %>"><%= category %></option>
+                        <% }) %>
+                      </select>
+                    </div>
+
+                  </div>
+
+                </div>
+
+                <div class="col-md-12 mb-3">
+                  <label for="cashLedgerDescription" class="form-label"><strong>İşlem Açıklaması</strong></label>
+                  <textarea class="form-control" name="cashLedgerDescription" id="cashLedgerDescription" rows="2"></textarea>
+                </div>
+
+                <div class="col-md-12 mb-3">
+                  <label for="cashLedgerAmount" class="form-label"><strong>İşlem Tutarı</strong> <span class="text-danger">*</span></label>
+                  <input type="number" class="form-control" id="cashLedgerAmount" name="cashLedgerAmount" step="0.01" required>
+                </div>
+
+
+              </div>
+
+          </div>
+      
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+            <button type="submit" class="btn btn-primary">Ekle</button>
+          </div>
+
+            </form>
+          </div>
+        </div>
+    </div>
+    <!-- End Add CashLedger Modal -->
+  <% } %>
+
+  <!-- Open The Pie Chart -->
+  <div class="modal fade" id="sade_openThePieChart" tabindex="-1" aria-labelledby="sade_openThePieChartLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <h5 class="modal-title" id="sade_openThePieChartLabel">Kasa Grafiği</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+
+              <!-- Default Tabs -->
+              <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link active" id="gider-tab" data-bs-toggle="tab" data-bs-target="#gider" type="button" role="tab" aria-controls="gider" aria-selected="true" tabindex="-1">Gider Graiği</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link" id="gelir-tab" data-bs-toggle="tab" data-bs-target="#gelir" type="button" role="tab" aria-controls="gelir" aria-selected="false">Gelir Grafiği</button>
+                </li>
+              </ul>
+              <div class="tab-content pt-2" id="myTabContent">
+                <div class="tab-pane fade active show" id="gider" role="tabpanel" aria-labelledby="gider-tab">
+                  <!-- Pie Chart -->
+                  <canvas id="pieChart" style="max-height: 400px; margin: 20px 0;"></canvas>
+                  <script>
+                    document.addEventListener("DOMContentLoaded", () => {
+                      const categoriesLabels = JSON.parse(document.querySelector('#categoriesLabels').getAttribute('data-categories-labels'));
+                      const categoriesData = JSON.parse(document.querySelector('#categoriesData').getAttribute('data-categories'));
+
+                      const filteredLabels = categoriesLabels.filter((label, index) => categoriesData[index] !== 0);
+                      const filteredData = categoriesData.filter(value => value !== 0);
+
+                      const total = filteredData.reduce((acc, value) => acc + Math.abs(value), 0);
+
+
+                      new Chart(document.querySelector('#pieChart'), {
+                        type: 'pie',
+                        options:{
+                            responsive: true,
+                            plugins: {
+                              legend:{
+                                position: 'left',
+                                align: 'start',
+                                labels: {
+                                  padding: 15, // Kategoriler arasına boşluk eklemek için padding
+                                  font: {
+                                    size: 14, // Yazı boyutunu ayarlamak için
+                                    weight: 'bold' // Yazıları kalın yapmak için
+                                  },
+                                  generateLabels: function(chart) {
+                                    const original = Chart.overrides.pie.plugins.legend.labels.generateLabels;
+                                    const labels = original.call(this, chart);
+                                    // Add total value to each label
+                                    labels.forEach(label => {
+                                      const dataIndex = label.index;
+                                      const value = filteredData[dataIndex];
+                                      const absValue = Math.abs(value);
+                                      const percentage = total > 0 ? ((absValue / total) * 100).toFixed(2) : 0;
+                                      label.text += `: ${absValue.toLocaleString()} ₺ (${percentage}%)`;
+                                    });
+                                    return labels;
+                                  } 
+                                },
+                              },
+                              tooltip: {
+                                bodyFont: {
+                                  size: 16,
+                                  weight: 'bold'
+                                },
+                                callbacks: {
+                                  label: function(tooltipItem) {
+                                    return `${tooltipItem.raw.toLocaleString()} ₺`;
+                                  },
+                                }
+                              }
+                              },
+                        },
+                        data: {
+                          labels: filteredLabels, // Burada kategorileri kullanıyoruz
+                          datasets: [{
+                            data: filteredData,
+                            backgroundColor: [
+                              'rgb(255, 99, 132)',
+                              'rgb(54, 162, 235)',
+                              'rgb(255, 205, 86)',
+                              'rgb(75, 192, 192)',
+                              'rgb(153, 102, 255)',
+                              'rgb(255, 159, 64)',
+                              'rgb(199, 199, 199)',
+                              'rgb(255, 99, 71)',
+                              'rgb(60, 179, 113)',
+                              'rgb(106, 90, 205)',
+                              'rgb(70, 130, 180)',
+                              'rgb(100, 149, 237)',
+                              'rgb(210, 105, 30)',
+                              'rgb(119, 136, 153)'
+                            ],
+                            hoverOffset: 18,
+                            borderColor: '#fff'
+                          }]
+                        }
+                      });
+                    });
+                  </script>
+                  <!-- End Pie Chart -->
+                </div>
+                <div class="tab-pane fade" id="gelir" role="tabpanel" aria-labelledby="gelir-tab">
+                  <!-- Pie Chart -->
+                  <canvas id="pieChartGelir" style="max-height: 400px; margin: 20px 0;"></canvas>
+                  <script>
+                    document.addEventListener("DOMContentLoaded", () => {
+                      const categoriesLabels = JSON.parse(document.querySelector('#categoriesLabels').getAttribute('data-categories-labels'));
+                      const categoriesDataGelir = JSON.parse(document.querySelector('#categoriesDataGelir').getAttribute('data-categories'));
+
+                      const filteredLabels = categoriesLabels.filter((label, index) => categoriesDataGelir[index] !== 0);
+                      const filteredData = categoriesDataGelir.filter(value => value !== 0);
+
+                      const total = filteredData.reduce((acc, value) => acc + Math.abs(value), 0);
+
+
+                      new Chart(document.querySelector('#pieChartGelir'), {
+                        type: 'pie',
+                        options:{
+                            responsive: true,
+                            plugins: {
+                              legend:{
+                                position: 'left',
+                                align: 'start',
+                                labels: {
+                                  padding: 15, // Kategoriler arasına boşluk eklemek için padding
+                                  font: {
+                                    size: 14, // Yazı boyutunu ayarlamak için
+                                    weight: 'bold' // Yazıları kalın yapmak için
+                                  },
+                                  generateLabels: function(chart) {
+                                    const original = Chart.overrides.pie.plugins.legend.labels.generateLabels;
+                                    const labels = original.call(this, chart);
+                                    // Add total value to each label
+                                    labels.forEach(label => {
+                                      const dataIndex = label.index;
+                                      const value = filteredData[dataIndex];
+                                      const absValue = Math.abs(value);
+                                      const percentage = total > 0 ? ((absValue / total) * 100).toFixed(2) : 0;
+                                      label.text += `: ${absValue.toLocaleString()} ₺ (${percentage}%)`;
+                                    });
+                                    return labels;
+                                  } 
+                                },
+                              },
+                              tooltip: {
+                                bodyFont: {
+                                  size: 16,
+                                  weight: 'bold'
+                                },
+                                callbacks: {
+                                  label: function(tooltipItem) {
+                                    return `${tooltipItem.raw.toLocaleString()} ₺`;
+                                  },
+                                }
+                              }
+                              },
+                        },
+                        data: {
+                          labels: filteredLabels, // Burada kategorileri kullanıyoruz
+                          datasets: [{
+                            data: filteredData,
+                            backgroundColor: [
+                              'rgb(255, 99, 132)',
+                              'rgb(54, 162, 235)',
+                              'rgb(255, 205, 86)',
+                              'rgb(75, 192, 192)',
+                              'rgb(153, 102, 255)',
+                              'rgb(255, 159, 64)',
+                              'rgb(199, 199, 199)',
+                              'rgb(255, 99, 71)',
+                              'rgb(60, 179, 113)',
+                              'rgb(106, 90, 205)',
+                              'rgb(70, 130, 180)',
+                              'rgb(100, 149, 237)',
+                              'rgb(210, 105, 30)',
+                              'rgb(119, 136, 153)'
+                            ],
+                            hoverOffset: 18,
+                            borderColor: '#fff'
+                          }]
+                        }
+                      });
+                    });
+                  </script>
+                  <!-- End Pie Chart -->
+                </div>
+              </div>
+          
+
+           <div id="categoriesLabels" data-categories-labels='<%= JSON.stringify(cashLedgerCategories) %>'></div>
+           <div id="categoriesData" data-categories='<%= JSON.stringify(cashLedgerCategoriesData) %>'></div>
+           <div id="categoriesDataGelir" data-categories='<%= JSON.stringify(cashLedgerCategoriesDataGelir) %>'></div>
+        </div>
+    
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+        </div>
+
+        </div>
+      </div>
+  </div>
+  <!-- End Open The Pie Chart -->
+
+
+  <!-- ======= Footer ======= -->
+  <%- include("templates/_footer") %>
+  <!-- End Footer -->
+
+  <%- include("templates/_scroll") %>
+
+  <%- include("templates/_script") %>
+
+  <%- include("templates/_resetFormModal") %>
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date().toISOString().split('T')[0];
+        const startDateInput = document.getElementById('cashLedgerStartDate');
+        const endDateInput = document.getElementById('cashLedgerEndDate');
+        const filterForm = document.getElementById('sade_cashLedgerFilterForm');
+        const exportFilterExcelForm = document.getElementById('sade_exportFilterExcelForm');
+
+        // Tarih inputlarına maksimum değer olarak bugünün tarihini ayarla
+        startDateInput.setAttribute('max', today);
+        endDateInput.setAttribute('max', today);
+
+        // Tarih değişikliklerinde min/max değerlerini ayarla
+        startDateInput.addEventListener('change', function() {
+          var startDateInput = this.value;
+            endDateInput.setAttribute('min', startDateInput);
+        });
+
+        endDateInput.addEventListener('change', function() {
+            if (this.value < startDateInput.value) {
+                this.value = "";
+                alert('Bitiş tarihi, başlangıç tarihinden önce olamaz.');
+            }
+        });
+
+        // Filtreleri sıfırlama butonu
+        document.getElementById('resetFilters').addEventListener('click', function() {
+            startDateInput.value = "";
+            endDateInput.value = "";
+            window.location.href = '/admin/cash-ledger';
+        });
+
+        // Tarih aralığı butonlarına event listener ekleme ve formu gönderme
+        function setDatesAndSubmit(startDate, endDate) {
+            startDateInput.value = formatDate(startDate);
+            endDateInput.value = formatDate(endDate);
+            filterForm.submit();
+        }
+
+        function formatDate(date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        const dateButtons = [
+            { id: 'todayBtn', range: [new Date(), new Date()] },
+            { id: 'yesterdayBtn', range: [new Date(Date.now() - 86400000), new Date(Date.now() - 86400000)] },
+            { id: 'lastWeekBtn', range: [new Date(Date.now() - 604800000), new Date()] },
+            { id: 'lastMonthBtn', range: [new Date(new Date().setMonth(new Date().getMonth() - 1)), new Date()] }
+        ];
+
+        dateButtons.forEach(btn => {
+            const button = document.getElementById(btn.id);
+            if (button) {
+                button.addEventListener('click', function() {
+                    setDatesAndSubmit(btn.range[0], btn.range[1]);
+                });
+            }
+        });
+
+        exportFilterExcelForm.addEventListener('submit', function(event) {
+            const startDateInputValue = startDateInput.value;
+            const endDateInputValue = endDateInput.value;
+    
+            // Gizli inputlara tarih değerlerini atayalım
+            document.getElementById('exportStartDate').value = startDateInputValue;
+            document.getElementById('exportEndDate').value = endDateInputValue;
+        });
+
+    });
+
+
+  </script>
+
+  <script>
+      $(document).ready(function () {
+          $.fn.dataTable.ext.type.order['date-custom-pre'] = function (d) {
+              var parts = d.split('.');
+              return new Date(parts[2], parts[1] - 1, parts[0]).getTime();
+          };
+
+          $.fn.dataTable.ext.type.order['currency-pre'] = function (d) {
+            return parseFloat(d.replace(/\./g, '').replace(',', '.'));
+          };
+
+          $('#sade_cashledger-table').DataTable({
+              "pageLength": 100,
+              "order": [[0, "desc"]],
+              "columnDefs": [
+                  { "orderable": false, "targets": [3] },
+                  { "type": 'date-custom', "targets": [0] },
+                  { "type": 'currency', "targets": [5] }
+              ]
+          });
+      });
+  </script>
+
+
+</body>
+
+</html>

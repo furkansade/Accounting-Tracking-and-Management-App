@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<%- include("../templates/_header") %>
+
+<body>
+
+  <!-- ======= Navbar ======= -->
+  <%- include("../templates/_navbar") %>
+  <!-- End Navbar -->
+
+  <!-- ======= Sidebar ======= -->
+  <%- include("../templates/_sidebar") %>
+  <!-- End Sidebar-->
+
+  <main id="main" class="main">
+
+    <div class="row">
+      <%- include("../templates/_breadcrumb") %>
+    </div>
+
+
+    <section class="section">
+      <div class="row">
+
+        <table id="employeesTable" class="table table-hover">
+          <thead>
+            <tr>
+              <th scope="col">İsim Soyisim</th>
+              <th scope="col">İşe Başlama Tarihi</th>
+              <th scope="col">İşten Çıkış Tarihi</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <% for(let i = 0; i < exitedEmployees.length; i++) { %>
+            <tr>
+              <td>
+                <a href="/admin/employees/detail/<%= exitedEmployees[i]._id %>">
+                  <%= exitedEmployees[i].employeeFullName %>
+                </a>
+              </td>
+              <td><%= exitedEmployees[i].formattedEmployeeStartDate %></td>
+              <td><%= exitedEmployees[i].formattedEmployeeExitDate %></td>
+            </tr>
+            <% } %>
+
+
+          </tbody>
+        </table>
+
+      </div>
+    </section>
+
+  </main><!-- End #main -->
+  <!-- End #main -->
+
+  <!-- ======= Footer ======= -->
+  <%- include("../templates/_footer") %>
+  <!-- End Footer -->
+
+  <%- include("../templates/_scroll") %>
+
+  <%- include("../templates/_script") %>
+  
+
+</body>
+
+</html>

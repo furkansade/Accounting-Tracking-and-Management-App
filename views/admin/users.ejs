@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<%- include("templates/_header") %>
+
+<body>
+
+  <!-- ======= Navbar ======= -->
+  <%- include("templates/_navbar") %>
+  <!-- End Navbar -->
+
+  <!-- ======= Sidebar ======= -->
+  <%- include("templates/_sidebar") %>
+  <!-- End Sidebar-->
+
+  <main id="main" class="main">
+
+    <div class="row mb-3">
+      <div class="col-md-10">
+        <div class="pagetitle">
+          <h1>Kullanıcılar</h1>
+          <nav>
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="/admin">Dashboard</a></li>
+              <li class="breadcrumb-item">Kullanıcılar</li>
+            </ol>
+          </nav>
+        </div><!-- End Page Title -->
+      </div>
+      <div class="col-md-2">
+       <!-- open add employee modal -->
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+          Kullanıcı Ekle
+        </button>
+      </div>
+      <%- include("templates/_alert") %>
+    </div>
+
+
+    <section class="section">
+      <div class="row">
+
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">İsim Soyisim</th>
+              <th scope="col">Eposta</th>
+              <th scope="col">Rol</th>
+              <th scope="col">İşlemler</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            
+            <% for(let i = 0; i < users.length; i++) { %>
+              
+            <tr>
+              <th scope="row"><%= i+1 %></th>
+              <td><%= users[i].firstName %> <%= users[i].lastName %></td>
+              <td><%= users[i].email %></td>
+              <td>
+                <% if(users[i].role === 'admin') { %>
+                  Yönetici
+                <% } else if(users[i].role === 'user') { %>
+                  Kullanıcı
+                <% } else if(users[i].role === 'guest') { %>
+                  Misafir
+                <% } %>
+              </td>
+              <td>
+                <% if(users[i]._id.toString() === user._id.toString()) { %>
+                  <button class="btn btn-danger" disabled>
+                    <i class="bi bi-trash"></i>
+                  </button>
+                <% } else { %>
+                <a href="/admin/users/<%= users[i]._id %>?_method=DELETE" class="btn btn-danger">
+                  <i class="bi bi-trash"></i>
+                </a>
+                <% } %>
+              </td>
+            </tr>
+
+            <% } %>
+
+
+          </tbody>
+        </table>
+
+      </div>
+    </section>
+
+  </main><!-- End #main -->
+  <!-- End #main -->
+
+  <!-- ======= Add User Modal ======= -->
+  <div class="modal fade sade_addModal" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addUserModalLabel">Yeni Kullanıcı Ekle</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form class="row g-3 sade_addForm" action="/admin/users" method="POST" enctype="multipart/form-data">
+
+            <div class="col-md-6 mb-3">
+              <label for="firstName" class="form-label">İsim <strong class="text-danger">*</strong></label>
+              <input type="text" class="form-control" id="firstName" name="firstName" required>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="lastName" class="form-label">Soyisim <strong class="text-danger">*</strong></label>
+              <input type="text" class="form-control" id="lastName" name="lastName" required>
+            </div>
+
+            <div class="col-md-4 mb-3">
+              <label for="role" class="form-label">Rol <strong class="text-danger">*</strong></label>
+              <select class="form-select" name="role" id="role" required>
+                <option value="admin">Admin</option>
+                <option value="user">Kullanıcı</option>
+                <option value="guest">Misafir</option> 
+              </select>
+            </div>
+
+            <div class="col-md-4 mb-3">
+              <label for="email" class="form-label">Eposta <strong class="text-danger">*</strong></label>
+              <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+
+            <div class="col-md-4 mb-3">
+              <label for="password" class="form-label">Şifre <strong class="text-danger">*</strong></label>
+              <input type="password" class="form-control" id="password" name="password" required>
+              <input type="checkbox" class="sade-see-password form-check-input" onclick="passwordVisibility()">
+              <label class="form-check-label" for="flexCheckDefault">
+                Göster
+              <br>
+              <a class="text-link" href="#" onclick="generatePassword()">
+                  Şifre Oluştur
+              </a>
+            </div>
+           
+
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+              <button type="submit" class="btn btn-primary">Ekle</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End Add User Modal -->
+
+  <!-- ======= Footer ======= -->
+  <%- include("templates/_footer") %>
+  <!-- End Footer -->
+
+  <%- include("templates/_scroll") %>
+
+  <%- include("templates/_script") %>
+
+  <%- include("templates/_resetFormModal") %>
+
+ 
+  <script>
+    function passwordVisibility() {
+      var x = document.getElementById("password");
+      if (x.type === "password") {
+        x.type = "text";
+      } else {
+        x.type = "password";
+      }
+    }
+
+    function generatePassword() {
+      var length = 11,
+        charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.!,@#$%^&*()_+~`|}{[]:;?><,./-=",
+        password = "";
+      for (var i = 0, n = charset.length; i < length; ++i) {
+        password += charset.charAt(Math.floor(Math.random() * n));
+      }
+      document.getElementById("password").value = password;
+    }
+  </script>
+  
+
+</body>
+
+</html>

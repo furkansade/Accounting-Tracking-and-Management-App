@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include("../templates/_header") %>
+
+<body>
+
+  <!-- ======= Navbar ======= -->
+  <%- include("../templates/_navbar") %>
+  <!-- End Navbar -->
+
+  <!-- ======= Sidebar ======= -->
+  <%- include("../templates/_sidebar") %>
+  <!-- End Sidebar-->
+
+  <main id="main" class="main">
+
+    <div class="row">
+      <%- include("../templates/_breadcrumb") %>
+
+      <% if (user.role === 'admin' || user.role === 'user') { %>
+        <div class="col-md-2">
+          <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addCustomerTransactionModal">
+            Cari İşlem Ekle
+          </button>
+        </div>
+      <% } %>
+    </div>
+
+    <div class="row">
+      <form class="row g-3" id="updateCustomerForm" action="/admin/customers/<%= customer._id %>?_method=PUT" method="POST">
+
+        <div class="row mb-3">
+
+          <div class="col-md-6">
+            <div class="row">
+              <div class="col-md-12 mb-3">
+                <label for="customerName" class="form-label"><strong>Cari Unvanı</strong> <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="customerName" name="customerName" value="<%= customer.customerName %>" readonly required>
+              </div>
+    
+              <div class="form-group">
+    
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="customerCity" class="form-label"><strong>İl</strong></label>
+                    <input type="text" class="form-control" id="customerCity" name="customerCity" value="<%= customer.customerCity %>" readonly>
+                  </div>
+    
+                  <div class="col-md-6 mb-3">
+                    <label for="customerDistrict" class="form-label"><strong>İlçe</strong></label>
+                    <input type="text" class="form-control" id="customerDistrict" name="customerDistrict" value="<%= customer.customerDistrict %>" readonly>
+                  </div>
+                </div>
+    
+              </div>
+    
+              <div class="col-md-12 mb-3">
+                <label for="customerAddress" class="form-label"><strong>Adres</strong></label>
+                <input type="text" class="form-control" id="customerAddress" name="customerAddress" value="<%= customer.customerAddress %>" readonly>
+              </div>
+    
+              <div class="form-group">
+    
+                <div class="row">
+                  <div class="col-md-4 mb-3">
+                    <label for="customerTaxOffice" class="form-label"><strong>Vergi Dairesi</strong></label>
+                    <input type="text" class="form-control" id="customerTaxOffice" name="customerTaxOffice" value="<%= customer.customerTaxOffice %>" readonly>
+                  </div>
+    
+                  <div class="col-md-4 mb-3">
+                    <label for="customerTaxNumber" class="form-label"><strong>Vergi Numarası</strong></label>
+                    <input type="text" class="form-control" id="customerTaxNumber" name="customerTaxNumber" value="<%= customer.customerTaxNumber %>" readonly>
+                  </div>
+    
+                  <div class="col-md-4 mb-3">
+                    <label for="customerCurrency" class="form-label"><strong>Cari Para Birimi</strong></label>
+                    <select name="customerCurrency" id="customerCurrency" class="form-select" disabled>
+                      <option value="TRY" <%= customer.customerCurrency === 'TRY' ? 'selected' : '' %>>TRY</option>
+                      <option value="USD" <%= customer.customerCurrency === 'USD' ? 'selected' : '' %>>USD</option>
+                      <option value="EUR" <%= customer.customerCurrency === 'EUR' ? 'selected' : '' %>>EUR</option>
+                    </select>
+                  </div>
+                </div>
+    
+              </div>
+
+              <div class="form-group">
+                <div class="row">
+                  
+                  <div class="col-md-8 mb-3">
+                    <label for="customerPhoneNumber" class="form-label"><strong>Telefon Numarası</strong></label>
+                    <input type="phone" class="form-control" id="customerPhoneNumber" name="customerPhoneNumber" maxlength="10" value="<%= customer.customerPhoneNumber %>" readonly>
+                    <div class="form-text" id="basic-addon4">Başında sıfır olmadan giriniz.</div>
+                  </div>
+
+                  <div class="col-md-4 mb-3">
+                    <label for="customerTC" class="form-label"><strong>TC Kimlik Numarası</strong></label>
+                    <input type="text" class="form-control" id="customerTC" name="customerTC" maxlength="11" value="<%= customer.customerTC %>" readonly>
+                    <div class="form-text" id="basic-addon4">11 haneli TC Kimlik Numrası</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="row">
+              <div class="col-md-12 mb-3">
+                <label for="customerContactPerson" class="form-label"><strong>İlgili Kişi</strong></label>
+                <input type="text" class="form-control" id="customerContactPerson" name="customerContactPerson" value="<%= customer.customerContactPerson %>" readonly>
+              </div>
+    
+              <div class="form-group">
+    
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="customerMobileNumber" class="form-label"><strong>Cep Telefon Numarası</strong></label>
+                    <input type="phone" class="form-control" id="customerMobileNumber" name="customerMobileNumber" maxlength="10" value="<%= customer.customerMobileNumber %>" readonly>
+                    <div class="form-text" id="basic-addon4">Başında sıfır olmadan giriniz.</div>
+                  </div>
+    
+                  <div class="col-md-6 mb-3">
+                    <label for="customerEmail" class="form-label"><strong>Email</strong></label>
+                    <input type="email" class="form-control" id="customerEmail" name="customerEmail" value="<%= customer.customerEmail %>" readonly>
+                  </div>
+                </div>
+    
+              </div>
+    
+              <div class="col-md-12 mb-3">
+                <label for="customerNote" class="form-label"><strong>Cari Hakkında Notlar</strong></label>
+                <textarea class="form-control" name="customerNote" id="customerNote" rows="2" readonly><%= customer.customerNote %></textarea>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+
+        <% if (user.role === 'admin') { %>
+          <div class="col-md-6 mb-4">
+            <button type="button" class="btn btn-primary" id="editCustomerButton">Düzenle</button>
+            <button type="submit" class="btn btn-warning" id="updateCustomerButton" style="display: none;">Güncelle</button>
+          </div>
+        <% } %>
+
+      </form>
+    </div>
+
+    <%- include("../templates/_alert") %>
+
+    <div class="row">
+      <div class="col-xxl-4 col-md-6">
+        <div class="card">
+          <div class="card-body p-3">
+            <h4 class="card-title">Son Durum</h4>
+            <table class="table table-bordered" style="margin: 0;">
+              <thead>
+                <tr>
+                  <th scope="col">Alacak</th>
+                  <th scope="col">Borç</th>
+                  <th scope="col">Bakiye</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="text-success fw-bold"><%= sumReceivable.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> <%= getCurrencySymbol(customerCurrency) %></td>
+                  <td class="text-danger fw-bold"><%= sumDebt.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> <%= getCurrencySymbol(customerCurrency) %></td>
+                  <td class="text-<%= totalColor(total) %> fw-bold"><%= total.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> <%= getCurrencySymbol(customerCurrency) %></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-8 mt-3 mb-3">
+        <form method="GET" action="/admin/customers/<%= customer._id %>">
+          <div class="row">
+            <div class="col-md-4">
+              <label for="customerStartDate" class="form-label"><strong>Başlangıç Tarihi</strong></label>
+              <input type="date" id="customerStartDate" name="customerStartDate" class="form-control" value="<%= customerStartDate %>">
+            </div>
+            <div class="col-md-4">
+              <label for="customerEndDate" class="form-label"><strong>Bitiş Tarihi</strong></label>
+              <input type="date" id="customerEndDate" name="customerEndDate" class="form-control" value="<%= customerEndDate %>">
+            </div>
+            <div class="col-md-4 align-self-end">
+              <button type="submit" class="btn btn-primary">Filtrele</button>
+              <button type="button" class="btn btn-secondary" id="resetFilters">Sıfırla</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+
+    <section class="section">
+      <div class="row">
+        <span class="d-flex justify-content-end"><strong>*Alacak ve borçlar KDV dahil tutarlardır!</strong></span>
+
+        <table id="sade_singleCustomer-table" class="table table-sm">
+          <thead>
+            <tr>
+              <th scope="col">Tarih</th>
+              <th scope="col">Açıklama</th>
+              <th scope="col" class="text-start">KDV</th>
+              <th scope="col">İşlem Türü</th>
+              <th scope="col" class="text-end">Alacak</th>
+              <th scope="col" class="text-end">Borç</th>
+              <% if (user.role === 'admin') { %>
+                <th scope="col" class="text-center">İşlemler</th>
+              <% } %>
+            </tr>
+          </thead>
+          <tbody>
+
+            <% for(let i = 0; i < customerTransactions.length; i++) { %>
+              <tr>
+                <td><%= customerTransactions[i].formattedTransactionDate %></td>
+                <td><%= customerTransactions[i].transactionDescription %></td>
+                <td class="text-start"><%= customerTransactions[i].transactionVAT === 14 ? 'Tevkifat' : customerTransactions[i].transactionVAT + '%' %></td>
+                <td class="text-<%= getBadgeClassDebt(customerTransactions[i].transactionType) %> fw-bold"><%= customerTransactions[i].transactionType %></td>
+                <td class="text-success fw-bold text-end"><%= customerTransactions[i].transactionType === 'Alacak' ? customerTransactions[i].formattedTransactionAmount + ' ' + getCurrencySymbol(customerCurrency) : '-' %></td>
+                <td class="text-danger fw-bold text-end"><%= customerTransactions[i].transactionType === 'Borç' ? customerTransactions[i].formattedTransactionAmount + ' ' + getCurrencySymbol(customerCurrency) : '-' %></td>
+                <% if (user.role === 'admin') { %>
+                  <td class="text-center">
+                    <a  data-bs-toggle="modal" data-bs-target="#updateTransactionModal_<%= customerTransactions[i]._id %>" class="btn btn-sm btn-warning">
+                      <i class="bi bi-pen"></i>
+                    </a>
+                    <a href="/admin/customer-transactions/<%= customerTransactions[i]._id %>?_method=DELETE" class="btn btn-sm btn-danger">
+                      <i class="bi bi-trash"></i>
+                    </a>
+                  </td>
+                <% } %>
+              </tr>
+
+              
+              <!-- UPDATE TRANSACTION -->
+              <div class="modal fade" id="updateTransactionModal_<%= customerTransactions[i]._id %>" tabindex="-1" aria-labelledby="updateTransactionModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                  <div class="modal-content">
+            
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="updateTransactionModalLabel">Cari İşlem Düzenle</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+            
+                    <div class="modal-body">
+                      <form class="row g-3" action="/admin/customer-transactions/edit/<%= customerTransactions[i]._id %>?_method=PUT" method="POST">
+            
+                        <input type="hidden" name="customer" value="<%= customer._id %>">
+            
+                        <div class="row mt-3 mb-3">
+            
+                          <div class="form-group">
+            
+                            <div class="row">
+                              <div class="col-md-6 mb-3">
+                                <label for="transactionDate" class="form-label"><strong>İşlem Tarihi</strong> <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="transactionDate" name="transactionDate" value="<%= formatDateForInputDate(customerTransactions[i].transactionDate) %>" required>
+                              </div>
+              
+                              <div class="col-md-6 mb-3">
+                                <label for="transactionDescription" class="form-label"><strong>Açıklama</strong> <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="transactionDescription" name="transactionDescription" value="<%= customerTransactions[i].transactionDescription %>" required>
+                              </div>
+                              
+                            </div>
+            
+                          </div>
+            
+                          <div class="form-group">
+            
+                            <div class="row">
+                              
+                              <div class="col-md-4 mb-3">
+                                <label for="transactionDomesticForeign" class="form-label"><strong>Yurtiçi - Yurtdışı</strong> <span class="text-danger">*</span></label>
+                                <select class="form-select" name="transactionDomesticForeign" id="transactionDomesticForeign" required>
+                                  <option value="Domestic" <%= customerTransactions[i].transactionDomesticForeign === 'Domestic' ? 'selected' : '' %> >Yurtiçi</option>
+                                  <option value="Foreign" <%= customerTransactions[i].transactionDomesticForeign === 'Foreign' ? 'selected' : '' %> >Yurtdışı</option>
+                                </select>
+                              </div>
+            
+                              <div class="col-md-4 mb-3">
+                                <label for="transactionQuantityHour" class="form-label"><strong>Adet / Saat</strong> <span class="text-danger">*</span></label>
+                                <select class="form-select" name="transactionQuantityHour" id="transactionQuantityHour" required>
+                                  <option value="Adet" <%= customerTransactions[i].transactionQuantityHour === 'Adet' ? 'selected' : '' %> >Adet</option>
+                                  <option value="Saat" <%= customerTransactions[i].transactionQuantityHour === 'Saat' ? 'selected' : '' %> >Saat</option>
+                                </select>
+                              </div>
+            
+                              <div class="col-md-4 mb-3">
+                                <label for="transactionType" class="form-label"><strong>Alacak / Borç</strong> <span class="text-danger">*</span></label>
+                                <select class="form-select" name="transactionType" id="transactionType" required>
+                                  <option value="Alacak" <%= customerTransactions[i].transactionType === 'Alacak' ? 'selected' : '' %> >Alacak</option>
+                                  <option value="Borç" <%= customerTransactions[i].transactionType === 'Borç' ? 'selected' : '' %>  >Borç</option>
+                                </select>
+                              </div>
+                              
+                            </div>
+            
+                          </div>
+            
+                          <div class="form-group">
+            
+                            <div class="row">
+                              
+                              <div class="col-md-4 mb-3">
+                                <label for="transactionAmount" class="form-label"><strong>İşlem Tutarı</strong> <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" name="transactionAmount" id="transactionAmount" step="0.01" value="<%= customerTransactions[i].transactionAmount / (1 + (customerTransactions[i].transactionVAT / 100)) %>" required>
+                                <div class="form-text" id="basic-addon4">KDV Hariç Tutar</div>
+                              </div>
+            
+                              <div class="col-md-4 mb-3">
+                                <label for="transactionCurrency" class="form-label"><strong>Para Birimi</strong> <span class="text-danger">*</span></label>
+                                <select class="form-select" name="transactionCurrency" id="transactionCurrency" required>
+                                  <option value="<%= customer.customerCurrency %>"><%= customer.customerCurrency %></option>
+                                </select>
+                              </div>
+            
+                              <div class="col-md-4 mb-3">
+                                <label for="transactionVAT" class="form-label"><strong>KDV</strong> <span class="text-danger">*</span></label>
+                                <select class="form-select" name="transactionVAT" id="transactionVAT" required>
+                                  <% const vatOptions = [0, 1, 10, 20, 14]; %>
+                                  <% vatOptions.forEach(vat => { %>
+                                    <option value="<%= vat %>" <%= customerTransactions[i].transactionVAT === vat ? 'selected' : '' %> ><%= vat %>%</option>
+                                    <% if(vat === 14) { %>
+                                      <option value="<%= vat %>" <%= customerTransactions[i].transactionVAT === vat ? 'selected' : '' %> >Tevkifat</option>
+                                    <% } %>
+                                  <% }); %>
+                                </select>
+                              </div>
+                              
+                            </div>
+            
+                          </div>
+            
+                        </div>
+            
+                    </div>
+                
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                      <button type="submit" class="btn btn-warning">Güncelle</button>
+                    </div>
+            
+                      </form>
+                    </div>
+                  </div>
+              </div>
+
+            <% } %>
+
+
+          </tbody>
+        </table>
+
+
+      </div>
+    </section>
+
+  </main><!-- End #main -->
+  <!-- End #main -->
+
+  <!-- ======= Add CustomerTransaction Modal ======= -->
+  <div class="modal fade sade_addModal" id="addCustomerTransactionModal" tabindex="-1" aria-labelledby="addCustomerTransactionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <h5 class="modal-title" id="addCustomerTransactionModalLabel">Cari İşlem Ekle</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <form class="row g-3 sade_addForm" action="/admin/customer-transactions" method="POST">
+
+            <input type="hidden" name="customer" value="<%= customer._id %>">
+
+            <div class="row mt-3 mb-3">
+
+              <div class="form-group">
+
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="transactionDate" class="form-label"><strong>İşlem Tarihi</strong> <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control" id="transactionDate" name="transactionDate" value="<%= formmattedCurrentDate %>" required>
+                  </div>
+  
+                  <div class="col-md-6 mb-3">
+                    <label for="transactionDescription" class="form-label"><strong>Açıklama</strong> <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="transactionDescription" name="transactionDescription" required>
+                  </div>
+                  
+                </div>
+
+              </div>
+
+              <div class="form-group">
+
+                <div class="row">
+                  
+                  <div class="col-md-4 mb-3">
+                    <label for="transactionDomesticForeign" class="form-label"><strong>Yurtiçi - Yurtdışı</strong> <span class="text-danger">*</span></label>
+                    <select class="form-select" name="transactionDomesticForeign" id="transactionDomesticForeign" required>
+                      <option value="Domestic">Yurtiçi</option>
+                      <option value="Foreign">Yurtdışı</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-4 mb-3">
+                    <label for="transactionQuantityHour" class="form-label"><strong>Adet / Saat</strong> <span class="text-danger">*</span></label>
+                    <select class="form-select" name="transactionQuantityHour" id="transactionQuantityHour" required>
+                      <option value="Adet">Adet</option>
+                      <option value="Saat">Saat</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-4 mb-3">
+                    <label for="transactionType" class="form-label"><strong>Alacak / Borç</strong> <span class="text-danger">*</span></label>
+                    <select class="form-select" name="transactionType" id="transactionType" required>
+                      <option value="Alacak">Alacak</option>
+                      <option value="Borç">Borç</option>
+                    </select>
+                  </div>
+                  
+                </div>
+
+              </div>
+
+              <div class="form-group">
+
+                <div class="row">
+                  
+                  <div class="col-md-4 mb-3">
+                    <label for="transactionAmount" class="form-label"><strong>İşlem Tutarı</strong> <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" name="transactionAmount" id="transactionAmount" step="0.01" required>
+                    <div class="form-text" id="basic-addon4">KDV Hariç Tutar</div>
+                  </div>
+
+                  <div class="col-md-4 mb-3">
+                    <label for="transactionCurrency" class="form-label"><strong>Para Birimi</strong> <span class="text-danger">*</span></label>
+                    <select class="form-select" name="transactionCurrency" id="transactionCurrency" required>
+                      <option value="<%= customer.customerCurrency %>"><%= customer.customerCurrency %></option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-4 mb-3">
+                    <label for="transactionVAT" class="form-label"><strong>KDV</strong> <span class="text-danger">*</span></label>
+                    <select class="form-select" name="transactionVAT" id="transactionVAT" required>
+                      <option value="0">0%</option>
+                      <option value="1">1%</option>
+                      <option value="10">10%</option>
+                      <option value="20">20%</option>
+                      <option value="14">Tevkifat</option>
+                    </select>
+                  </div>
+                  
+                </div>
+
+              </div>
+
+            </div>
+
+        </div>
+    
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+          <button type="submit" class="btn btn-primary">Ekle</button>
+        </div>
+
+          </form>
+        </div>
+      </div>
+  </div>
+  <!-- End Add CustomerTransaction Modal -->
+
+
+  <!-- ======= Footer ======= -->
+  <%- include("../templates/_footer") %>
+  <!-- End Footer -->
+
+  <%- include("../templates/_scroll") %>
+
+  <%- include("../templates/_script") %>
+
+  <%- include("../templates/_resetFormModal") %>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const transactionStatusCheckboxes = document.querySelectorAll('input[type="checkbox"][id^="transactionStatus"]');
+
+      transactionStatusCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function(e) {
+          const isChecked = this.checked;
+          const valueToSend = isChecked ? 'true' : 'false';
+          const form = e.target.closest('form');
+          const hiddenInput = form.querySelector('input[name="transactionStatus"]');
+          hiddenInput.value = valueToSend;
+          form.submit();
+        });
+      });
+
+      const editCustomerButton = document.getElementById('editCustomerButton');
+      const updateCustomerButton = document.getElementById('updateCustomerButton');
+      const customerCurrencySelect = document.getElementById('customerCurrency');
+
+      editCustomerButton.addEventListener('click', function() {
+        // Form elemanlarını düzenlenebilir hale getir
+        const formInputs = document.querySelectorAll('#updateCustomerForm input, #updateCustomerForm textarea');
+        formInputs.forEach(input => {
+          input.removeAttribute('readonly');
+        });
+
+        // Select kutusunu aktifleştir
+        customerCurrencySelect.removeAttribute('disabled');
+
+        // Düzenle butonunu gizle, Güncelle butonunu göster
+        editCustomerButton.style.display = 'none';
+        updateCustomerButton.style.display = 'inline-block';
+      });
+    });
+  </script>
+
+  <script>
+    document.getElementById('customerStartDate').addEventListener('change', function() {
+      var customerStartDate = this.value;
+      document.getElementById('customerEndDate').setAttribute('min', customerStartDate);
+    });
+
+    
+    document.getElementById('customerEndDate').addEventListener('change', function() {
+      var customerEndDate = this.value;
+      var customerStartDate = document.getElementById('customerStartDate').value;
+      if (customerEndDate < customerStartDate) {
+        this.value = "";
+        alert('Bitiş tarihi, başlangıç tarihinden önce olamaz.');
+      }
+    });
+
+    document.getElementById('resetFilters').addEventListener('click', function() {
+    document.getElementById('customerStartDate').value = "";
+    document.getElementById('customerEndDate').value = "";
+    window.location.href = '/admin/customers/<%= customer._id %>';
+    });
+  </script>
+
+  <script>
+    $(document).ready(function () {
+        // Tarih sıralama fonksiyonunu tanımla
+        $.fn.dataTable.ext.type.order['date-custom-pre'] = function (d) {
+            var parts = d.split('.');
+            return new Date(parts[2], parts[1] - 1, parts[0]).getTime();
+        };
+
+        $.fn.dataTable.ext.type.order['currency-pre'] = function (d) {
+              return parseFloat(d.replace(/\./g, '').replace(',', '.'));
+            };
+
+        $('#sade_singleCustomer-table').DataTable({
+            "pageLength": 100,
+            "order": [[0, "desc"]],
+            "columnDefs": [
+                {
+                    "type": 'date-custom',
+                    "targets": [0]
+                },
+                {
+                    "type": 'currency',
+                    "targets": [4, 5]
+                }
+            ]
+        });
+    });
+  </script>
+
+</body>
+
+</html>

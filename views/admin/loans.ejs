@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<%- include("templates/_header") %>
+
+<body>
+
+  <!-- ======= Navbar ======= -->
+  <%- include("templates/_navbar") %>
+  <!-- End Navbar -->
+
+  <!-- ======= Sidebar ======= -->
+  <%- include("templates/_sidebar") %>
+  <!-- End Sidebar-->
+
+  <main id="main" class="main">
+
+    <div class="row">
+      <%- include("templates/_breadcrumb") %>
+
+      <% if (user.role === 'admin' || user.role === 'user') { %>
+        <div class="col-md-2">
+          <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addLoanModal">
+            Kredi Ekle
+          </button>
+        </div>
+      <% } %>
+      <%- include("templates/_alert") %>
+    </div>
+
+    <div class="row">
+      <div class="col-xxl-4 col-md-6">
+        <div class="card">
+          <div class="card-body p-3">
+            <h4 class="card-title">Son Durum</h4>
+            <table class="table table-bordered" style="margin: 0;">
+              <thead>
+                <tr>
+                  <th scope="col">Toplam Kredi</th>
+                  <th scope="col">Ödenen Kısım</th>
+                  <th scope="col">Kalan Borç</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                 <td class="fw-bold text-success"><%= formatCurrency(totalLoansAmount) %> ₺</td>
+                 <td class="fw-bold text-dark"><%= formatCurrency(totalPaidDebt) %> ₺</td>
+                 <td class="fw-bold text-danger"><%= formatCurrency(totalReamingDebt) %> ₺</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="section">
+        <table id="sade_loans-table" class="table table-hover">
+          <thead>
+            <tr>
+              <th scope="col" class="col-1">#</th>
+              <th scope="col" class="col-2">Banka</th>
+			  <th scope="col" class="col-2">Sonraki Tarih</th>
+              <th scope="col" class="col-2">Kredi Tutarı</th>
+              <th scope="col" class="col-2">Aylık Taksit</th>
+              <th scope="col" class="col-2">Kalan Tutar</th>
+              <th scope="col" class="col-1 text-center">İşlemler</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <% loans.forEach((loan, index) => { %>
+              <tr>
+                <th scope="row"><%= index+1 %></th>
+                <td class="fw-bold"><%= loan.loanBank %></td>
+				<td class="fw-bold"><%= loan.firstUnpaidInstallmentDate ? loan.firstUnpaidInstallmentDate : '-' %></td>
+                <td class="fw-bold text-success text-end"><%= loan.loanAmount ? formatCurrency(loan.loanAmount) : '-' %> ₺</td>
+                <td class="fw-bold text-warning text-end"><%= loan.loanAmount ? formatCurrency(loan.loanAmount / loan.loanNumberOfInstallments) : '-' %> ₺</td>
+                <td class="fw-bold text-danger text-end"><%= formatCurrency(loan.remainingDebt) %> ₺</td>
+                <td class="text-center">
+                  <a class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#loanInstallments<%= loan._id %>">
+                    <i class="bi bi-cash-stack"></i>
+                  </a>
+                  <a href="javascript:void(0);" class="btn btn-sm btn-danger delete-btn" data-id="<%= loan._id %>">
+                    <i class="bi bi-trash"></i>
+                  </a>
+                </td>
+              </tr>
+
+              <!-- ======= loanInstallments Modal ======= -->
+              <div class="modal fade" id="loanInstallments<%= loan._id %>" tabindex="-1" aria-labelledby="loanInstallmentsLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl">
+                  <div class="modal-content">
+
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="loanInstallmentsLabel">Kredi Taksit Ödemesi</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body">
+                      <% for(let j = 0; j < loan.loanInstallments.length; j++) { %>
+                        <div class="sade-table-row <%= loan.loanInstallments[j].installmentStatus ? 'sade-table-checked' : '' %>">
+                            <div class="sade-table-item"><%= j+1 %></div>
+                            <div class="sade-table-item"><%= loan.loanInstallments[j].installmentDate.toLocaleDateString('tr-TR') %></div>
+                            <div class="sade-table-item"><strong><%= formatCurrency(loan.loanInstallments[j].installmentAmount) %> ₺</strong></div>
+                            <div class="sade-table-item">
+                                <form method="POST" action="/admin/loans/<%= loan._id %>/installment/<%= loan.loanInstallments[j]._id %>?_method=PUT">
+                                <button type="submit" class="btn btn-sm <%= loan.loanInstallments[j].installmentStatus ? 'btn-danger' : 'btn-success' %>">
+                                  <i class="bi bi-<%= loan.loanInstallments[j].installmentStatus ? 'x' : 'check' %>"></i>
+                                </button>
+                                </form>
+                            </div>  
+                        </div>
+                        <% } %>
+                    </div>
+                
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                    </div>
+
+                    </div>
+                  </div>
+              </div>
+              <!-- End loanInstallments Modal -->
+
+
+            <% }); %>
+
+
+          </tbody>
+        </table>
+    </section>
+
+  </main><!-- End #main -->
+  <!-- End #main -->
+
+
+  <!-- ======= Add Loan Modal ======= -->
+    <div class="modal fade sade_addModal" id="addLoanModal" tabindex="-1" aria-labelledby="addLoanModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+
+          <div class="modal-header">
+            <h5 class="modal-title" id="addLoanModalLabel">Kredi Ekle</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body">
+            <form id="sade_add-loan-form" class="row g-3 sade_addForm" action="/admin/loans" method="POST" enctype="multipart/form-data">
+
+              <div class="row mt-3 mb-3">
+
+                <div class="form-group">
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label for="loanBank" class="form-label"><strong>Banka <span class="text-danger">*</span></strong></label>
+                      <input type="text" class="form-control" id="loanBank" name="loanBank" required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                      <label for="loanFirstInstallmentDate" class="form-label"><strong>İlk Taksitin Ödeme Tarihi <span class="text-danger">*</span></strong></label>
+                      <input type="date" class="form-control" id="loanFirstInstallmentDate" name="loanFirstInstallmentDate" value="<%= formmattedCurrentDate %>" required>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label for="loanAmount" class="form-label"><strong>Ödenecek Tutar <span class="text-danger">*</span></strong></label>
+                      <input type="number" class="form-control" step="0.01" id="loanAmount" name="loanAmount" required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                      <label for="loanNumberOfInstallments" class="form-label"><strong>Taksit Sayısı <span class="text-danger">*</span></strong></label>
+                      <input type="text" class="form-control" id="loanNumberOfInstallments" name="loanNumberOfInstallments" required>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+          </div>
+      
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+            <button type="submit" class="btn btn-primary">Ekle</button>
+          </div>
+
+            </form>
+          </div>
+        </div>
+    </div>
+  <!-- End Add Loan Modal -->
+
+
+   <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteConfirmationModalLabel">Silme Onayı</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            Bu kaydı silmek istediğinize emin misiniz?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+            <button type="button" class="btn btn-danger" id="confirmDelete">Sil</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  <!-- End Delete Confirmation Modal -->
+
+
+  <!-- ======= Footer ======= -->
+  <%- include("templates/_footer") %>
+  <!-- End Footer -->
+
+  <%- include("templates/_scroll") %>
+
+  <%- include("templates/_script") %>
+
+  <%- include("templates/_resetFormModal") %>
+
+  <script>
+    // Loan Delete Confirmation
+    document.addEventListener('DOMContentLoaded', () => {
+      const deleteButtons = document.querySelectorAll('.delete-btn');
+      const confirmDeleteButton = document.getElementById('confirmDelete');
+      let deleteUrl = '';
+
+      deleteButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          deleteUrl = `/admin/loans/${button.dataset.id}?_method=DELETE`;
+          new bootstrap.Modal(document.getElementById('deleteConfirmationModal')).show();
+        });
+      });
+
+      confirmDeleteButton.addEventListener('click', () => {
+        window.location.href = deleteUrl;
+      });
+    });
+
+    // DataTable Initialization
+    $(document).ready(() => {
+      $.fn.dataTable.ext.type.order['currency-pre'] = d => parseFloat(d.replace(/\./g, '').replace(',', '.'));
+      $('#sade_loans-table').DataTable({
+        "pageLength": 100,
+        "columnDefs": [
+          { "type": "currency", "targets": [2, 3] }
+        ]
+      });
+    });
+  </script>
+
+</body>
+
+</html>

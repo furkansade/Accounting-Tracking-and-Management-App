@@ -1,0 +1,89 @@
+<aside id="sidebar" class="sidebar">
+
+  <ul class="sidebar-nav" id="sidebar-nav">
+
+    <li class="nav-item">
+      <a class="nav-link <%= title === 'dashboard' ? 'collapse' : 'collapsed' %>" href="/admin">
+        <i class="bi bi-grid"></i>
+        <span>Profil</span>
+      </a>
+    </li><!-- End Dashboard Nav -->
+    
+    <% if (user.role === 'admin') { %>
+    <li class="nav-item">
+      <a class="nav-link <%= title === 'siteinfo' ? 'collapse' : 'collapsed' %>" href="/admin/site-info">
+        <i class="bi bi-info-circle"></i>
+        <span>Site Bilgileri</span>
+      </a> 
+    </li>
+    <% } %>
+    
+
+    <% if (user.role === 'admin') { %>
+    <li class="nav-heading">Kayıt</li>
+    
+    <li class="nav-item">
+      <a class="nav-link <%= title === 'users' ? 'collapse' : 'collapsed' %>" href="/admin/users">
+        <i class="bi bi-person"></i>
+        <span>Kullanıcılar</span>
+      </a>
+    </li>
+    <% } %>
+
+    <hr>
+    <li class="nav-item">
+      <a class="nav-link <%= (title === 'customers' || title === 'customer') ? 'collapse' : 'collapsed' %>" href="/admin/customers">
+        <i class="bi bi-people"></i>
+        <span>Cariler</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link <%= title === 'cashLedger' ? 'collapse' : 'collapsed' %>" href="/admin/cash-ledger">
+        <i class="bi bi-cash-stack"></i>
+        <span>Kasa</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link <%= title === 'employees' || title === 'employee' ? 'collapse' : 'collapsed' %>" href="/admin/employees">
+        <i class="bi bi-file-earmark-person"></i>
+        <span>Çalışanlar</span>
+      </a> 
+    </li>
+    <hr>
+
+    <% if (user.role === 'admin') { %>
+      <li class="nav-heading">Finansal</li>
+      
+      <li class="nav-item">
+        <a class="nav-link <%= title === 'creditCards' ? 'collapse' : 'collapsed' %>" href="/admin/credit-cards">
+          <i class="bi bi-credit-card-2-front"></i>
+          <span>Kredi Kartları</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link <%= title === 'loans' ? 'collapse' : 'collapsed' %>" href="/admin/loans">
+          <i class="bi bi-wallet2"></i>
+          <span>Krediler</span>
+        </a>
+      </li>
+      
+      <% } %>
+
+    <% if (user.role === 'admin') { %>
+      <li class="nav-heading">Günlükler</li>
+      
+      <li class="nav-item">
+        <a class="nav-link <%= title === 'logs' ? 'collapse' : 'collapsed' %>" href="/admin/logs">
+          <i class="bi bi-file-earmark-text"></i>
+          <span>
+            Günlük
+            <span class="badge bg-warning text-dark ms-2">Beta</span>
+          </span>
+        </a>
+      </li>
+      
+      <% } %>
+    
+  </ul>
+
+</aside>

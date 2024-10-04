@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<%- include("templates/_header") %>
+
+<body>
+
+  <!-- ======= Navbar ======= -->
+  <%- include("templates/_navbar") %>
+  <!-- End Navbar -->
+
+  <!-- ======= Sidebar ======= -->
+  <%- include("templates/_sidebar") %>
+  <!-- End Sidebar-->
+
+  <main id="main" class="main">
+
+    <div class="row">
+      <%- include("templates/_breadcrumb") %>
+
+      <% if (user.role === 'admin' || user.role === 'user') { %>
+        <div class="col-md-2">
+          <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addCustomerModal">
+            Cari Ekle
+          </button>
+        </div>
+      <% } %>
+      <%- include("templates/_alert") %>
+    </div>
+
+    <div class="row">
+      <div class="col-xxl-4 col-md-6">
+        <div class="card">
+          <div class="card-body p-3">
+            <h4 class="card-title">Son Durum</h4>
+            <table class="table table-bordered" style="margin: 0;">
+              <thead>
+                <tr>
+                  <th scope="col"></th>
+                  <th scope="col">Alacak</th>
+                  <th scope="col">Borç</th>
+                  <th scope="col">Bakiye</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>TL</th>
+                  <td class="text-success fw-bold text-end"><%= totalBalanceTL.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> ₺</td>
+                  <td class="text-danger fw-bold text-end"><%= negativeBalanceTL.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> ₺</td>
+                  <td class="text-<%= totalColor(totalBalanceTL + negativeBalanceTL) %> fw-bold text-end"><%= (totalBalanceTL + negativeBalanceTL).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> ₺</td>
+                </tr>
+                <tr>
+                  <th>EUR</th>
+                  <td class="text-success fw-bold text-end"><%= totalBalanceEUR.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> €</td>
+                  <td class="text-danger fw-bold text-end"><%= negativeBalanceEUR.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> €</td>
+                  <td class="text-<%= totalColor(totalBalanceEUR + negativeBalanceEUR) %> fw-bold text-end"><%= (totalBalanceEUR + negativeBalanceEUR).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> €</td>
+                </tr>
+                <tr>
+                  <th>USD</th>
+                  <td class="text-success fw-bold text-end"><%= totalBalanceUSD.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> $</td>
+                  <td class="text-danger fw-bold text-end"><%= negativeBalanceUSD.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> $</td>
+                  <td class="text-<%= totalColor(totalBalanceUSD + negativeBalanceUSD) %> fw-bold text-end"><%= (totalBalanceUSD + negativeBalanceUSD).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> $</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="section">
+        <table id="sade_customers-table" class="table table-hover">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Cari Unvanı</th>
+              <th scope="col">İl</th>
+              <th scope="col">İlçe</th>
+              <th scope="col">Alacak</th>
+              <th scope="col">Borç</th>
+              <th scope="col">Bakiye</th>
+              <% if (user.role === 'admin') { %>
+                <th scope="col">İşlemler</th>
+              <% } %>
+            </tr>
+          </thead>
+          <tbody>
+
+            <% for(let i = 0; i < customers.length; i++) { %>
+              <tr>
+                <th scope="row"><%= i+1 %></th>
+                <td>
+                  <a class="link-offset-2 link-underline link-underline-opacity-0" href="/admin/customers/<%= customers[i]._id %>"><strong><%= customers[i].customerName %></strong></a>
+                </td>
+                <td><%= customers[i].customerCity %></td>
+                <td><%= customers[i].customerDistrict %></td>
+                <td class="text-success fw-bold text-end"><%= customers[i].totalReceivable.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> <%=getCurrencySymbol(customers[i].customerCurrency)%></td>
+                <td class="text-danger fw-bold text-end"><%= customers[i].totalDebt.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> <%=getCurrencySymbol(customers[i].customerCurrency)%></td>
+                <td class="text-<%= totalColor(customers[i].totalBalance) %> fw-bold text-end"><%= customers[i].totalBalance.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> <%=getCurrencySymbol(customers[i].customerCurrency)%></td>
+                <% if (user.role === 'admin') { %>
+                  <td class="text-center">
+                    <a href="javascript:void(0);" class="btn btn-sm btn-danger delete-btn" data-id="<%= customers[i]._id %>">
+                      <i class="bi bi-trash"></i>
+                    </a>
+                  </td>
+                <% } %>
+              </tr>
+            <% } %>
+
+
+          </tbody>
+        </table>
+    </section>
+
+  </main><!-- End #main -->
+  <!-- End #main -->
+
+
+  <% if (user.role === 'admin' || user.role === 'user') { %>
+  <!-- ======= Add Customer Modal ======= -->
+    <div class="modal fade sade_addModal" id="addCustomerModal" tabindex="-1" aria-labelledby="addCustomerModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+
+          <div class="modal-header">
+            <h5 class="modal-title" id="addCustomerModalLabel">Cari Ekle</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body">
+            <form id="sade_add-customer-form" class="row g-3 sade_addForm" action="/admin/customers" method="POST" enctype="multipart/form-data">
+
+              <div class="row mt-3 mb-3">
+
+                <div class="col-md-12 mb-3">
+                  <label for="customerName" class="form-label"><strong>Cari Unvanı</strong> <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="customerName" name="customerName" required>
+                  <div class="form-text">Kayıtlı olmayan bir cari ekleyin.</div>
+                </div>
+
+                <div class="form-group">
+
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label for="customerCity" class="form-label"><strong>İl</strong></label>
+                      <input type="text" class="form-control" id="customerCity" name="customerCity">
+                    </div>
+    
+                    <div class="col-md-6 mb-3">
+                      <label for="customerDistrict" class="form-label"><strong>İlçe</strong></label>
+                      <input type="text" class="form-control" id="customerDistrict" name="customerDistrict">
+                    </div>
+                  </div>
+
+                </div>
+
+                <div class="col-md-12 mb-3">
+                  <label for="customerAddress" class="form-label"><strong>Adres</strong></label>
+                  <input type="text" class="form-control" id="customerAddress" name="customerAddress">
+                </div>
+
+                <div class="form-group">
+
+                  <div class="row">
+                    <div class="col-md-4 mb-3">
+                      <label for="customerTaxOffice" class="form-label"><strong>Vergi Dairesi</strong></label>
+                      <input type="text" class="form-control" id="customerTaxOffice" name="customerTaxOffice">
+                    </div>
+    
+                    <div class="col-md-4 mb-3">
+                      <label for="customerTaxNumber" class="form-label"><strong>Vergi Numarası</strong></label>
+                      <input type="text" class="form-control" id="customerTaxNumber" name="customerTaxNumber">
+                    </div>
+    
+                    <div class="col-md-4 mb-3">
+                      <label for="customerCurrency" class="form-label"><strong>Cari Para Birimi</strong></label>
+                      <select name="customerCurrency" id="customerCurrency" class="form-select">
+                        <option value="TRY">TRY</option>
+                        <option value="USD">USD</option>
+                        <option value="EUR">EUR</option>
+                      </select>
+                    </div>
+                  </div>
+
+                </div>
+
+                <div class="form-group">
+                  <div class="row">
+
+                    <div class="col-md-4 mb-3">
+                      <label for="customerTC" class="form-label"><strong>TC Kimlik Numarası</strong></label>
+                      <input type="text" class="form-control" id="customerTC" name="customerTC" maxlength="11">
+                      <div class="form-text" id="basic-addon4">11 haneli TC Kimlik Numrası</div>
+                    </div>
+                    
+                    <div class="col-md-8 mb-3">
+                      <label for="customerPhoneNumber" class="form-label"><strong>Telefon Numarası</strong></label>
+                      <input type="phone" class="form-control" id="customerPhoneNumber" name="customerPhoneNumber" maxlength="10">
+                      <div class="form-text" id="basic-addon4">Başında sıfır olmadan giriniz.</div>
+                    </div>
+                  
+                  </div>
+                </div>
+
+                <hr>
+                
+                <div class="col-md-12 mb-3">
+                  <label for="customerContactPerson" class="form-label"><strong>İlgili Kişi</strong></label>
+                  <input type="text" class="form-control" id="customerContactPerson" name="customerContactPerson">
+                </div>
+
+                <div class="form-group">
+
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label for="customerMobileNumber" class="form-label"><strong>Cep Telefon Numarası</strong></label>
+                      <input type="phone" class="form-control" id="customerMobileNumber" name="customerMobileNumber" maxlength="10">
+                      <div class="form-text" id="basic-addon4">Başında sıfır olmadan giriniz.</div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                      <label for="customerEmail" class="form-label"><strong>Email</strong></label>
+                      <input type="email" class="form-control" id="customerEmail" name="customerEmail">
+                    </div>
+                  </div>
+
+                </div>
+
+                <div class="col-md-12 mb-3">
+                  <label for="customerNote" class="form-label"><strong>Cari Hakkında Notlar</strong></label>
+                  <textarea class="form-control" name="customerNote" id="customerNote" rows="2"></textarea>
+                </div>
+
+              </div>
+
+          </div>
+      
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+            <button type="submit" class="btn btn-primary">Ekle</button>
+          </div>
+
+            </form>
+          </div>
+        </div>
+    </div>
+  <!-- End Add Customer Modal -->
+  <% } %>
+
+
+  <% if (user.role === 'admin') { %>
+   <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteConfirmationCustomer" tabindex="-1" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteConfirmationCustomerLabel">Silme Onayı</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            Bu kaydı silmek istediğinize emin misiniz?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteCustomer">Sil</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  <!-- End Delete Confirmation Modal -->
+  <% } %>
+
+
+  <!-- ======= Footer ======= -->
+  <%- include("templates/_footer") %>
+  <!-- End Footer -->
+
+  <%- include("templates/_scroll") %>
+
+  <%- include("templates/_script") %>
+
+  <%- include("templates/_resetFormModal") %>
+
+  <script>
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const confirmDeleteButton = document.getElementById('confirmDeleteCustomer');
+      let deleteUrl = '';
+
+      document.querySelectorAll('.delete-btn').forEach(button => {
+        button.addEventListener('click', () => {
+          deleteUrl = `/admin/customers/${button.dataset.id}?_method=DELETE`;
+          new bootstrap.Modal(document.getElementById('deleteConfirmationCustomer')).show();
+        });
+      });
+
+      confirmDeleteButton.addEventListener('click', () => {
+        window.location.href = deleteUrl;
+      });
+    });
+
+    // DataTable Initialization for Customers
+    $(document).ready(() => {
+      $.fn.dataTable.ext.type.order['currency-pre'] = d => parseFloat(d.replace(/\./g, '').replace(',', '.'));
+      $('#sade_customers-table').DataTable({
+        "pageLength": 100,
+        "columnDefs": [
+          { "type": "currency", "targets": [4, 5, 6] },
+          { "orderable": false, "targets": 1 }
+        ]
+      });
+    });
+
+  </script>
+
+</body>
+
+</html>
