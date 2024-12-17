@@ -66,4 +66,4 @@ This project is licensed under the MIT License.
 
 ---
 
-For better usage of the system and to provide feedback, please feel free to [contact us](https://sadesoftware.com).
+For better usage of the system and to provide feedback, please feel free to [contact us](https://furkansadeuckun.com).
